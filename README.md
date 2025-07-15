@@ -30,22 +30,3 @@ An AI-powered voice-enabled web application designed to help **farmers**, **arti
 
 ---
 
-## 🛠️ Setup Instructions
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
-
-# 2. Install frontend dependencies
-npm install
-
-# 3. Add your API keys in .env
-touch .env
-# Add:
-# OPENAI_API_KEY=your_key_here
-# GOOGLE_SPEECH_API_KEY=your_key_here
-# FIREBASE_CONFIG={...}
-
-# 4. Run the development server
-npm start
