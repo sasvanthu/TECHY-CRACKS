@@ -1,0 +1,85 @@
+name: Deploy Digital Catalog AI Agent
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.8'
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Test backend
+      run: |
+        cd backend
+        python -m pytest test_agent.py -v
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install frontend dependencies
+      run: |
+        cd TECHY-CRACKS
+        npm install
+    
+    - name: Build frontend
+      run: |
+        cd TECHY-CRACKS
+        npm run build
+      env:
+        REACT_APP_API_BASE_URL: https://techy-cracks-backend.railway.app/api
+        REACT_APP_FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+
+  deploy-to-pages:
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install and build
+      run: |
+        cd TECHY-CRACKS
+        npm install
+        npm run build
+      env:
+        REACT_APP_API_BASE_URL: https://techy-cracks-backend.railway.app/api
+        REACT_APP_FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+        REACT_APP_ENABLE_VOICE_COMMANDS: true
+        REACT_APP_ENABLE_PRICE_SUGGESTIONS: true
+        REACT_APP_ENABLE_AUTO_CATEGORIZATION: true
+    
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./TECHY-CRACKS/build
+        cname: techy-cracks.github.io

@@ -12,7 +12,13 @@ from datetime import datetime, timedelta
 import logging
 from typing import Dict, List, Any, Optional, Tuple
 import requests
-# import google.generativeai as genai  # Will be conditionally imported
+# Google Generative AI will be conditionally imported
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    logger.warning("Google Generative AI not available")
 from dataclasses import dataclass
 import sqlite3
 import threading
@@ -157,16 +163,73 @@ class AdvancedNLPProcessor:
         
         if gemini_api_key:
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=gemini_api_key)
-                self.model = genai.GenerativeModel('gemini-pro')
-                self.use_api = True
-            except ImportError:
-                logger.warning("google-generativeai not available. Using API fallback.")
+                # Test the API key with direct HTTP call
+                test_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+                test_headers = {
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": gemini_api_key
+                }
+                test_data = {
+                    "contents": [{"parts": [{"text": "Hello"}]}]
+                }
+                
+                response = requests.post(test_url, headers=test_headers, json=test_data, timeout=10)
+                if response.status_code == 200:
+                    self.use_api = True
+                    logger.info("✅ Gemini API key verified successfully!")
+                else:
+                    logger.warning(f"❌ Gemini API key verification failed: {response.status_code}")
+                    self.use_api = False
+            except Exception as e:
+                logger.warning(f"❌ Gemini API key verification failed: {e}")
                 self.use_api = False
         else:
             logger.warning("Gemini API key not provided. AI features will be limited.")
             self.use_api = False
+    
+    def _call_gemini_api(self, prompt: str, temperature: float = 0.7) -> str:
+        """Call Gemini API using HTTP requests"""
+        if not self.use_api:
+            return None
+            
+        try:
+            url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+            headers = {
+                "Content-Type": "application/json",
+                "x-goog-api-key": self.api_key
+            }
+            
+            data = {
+                "contents": [
+                    {
+                        "parts": [
+                            {
+                                "text": prompt
+                            }
+                        ]
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": temperature,
+                    "topK": 1,
+                    "topP": 1,
+                    "maxOutputTokens": 2048,
+                    "stopSequences": []
+                }
+            }
+            
+            response = requests.post(url, headers=headers, json=data, timeout=30)
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result['candidates'][0]['content']['parts'][0]['text']
+            else:
+                logger.error(f"Gemini API error: {response.status_code} - {response.text}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error calling Gemini API: {e}")
+            return None
     
     def process_voice_command(self, text: str, language: str = 'en') -> Dict[str, Any]:
         """Process voice command with enhanced NLP"""
@@ -235,7 +298,7 @@ class AdvancedNLPProcessor:
     
     def _extract_entities(self, text: str, language: str) -> Dict[str, Any]:
         """Extract product entities from text using AI"""
-        if not self.model and not self.use_api:
+        if not self.use_api:
             return self._fallback_entity_extraction(text)
         
         try:
@@ -252,22 +315,23 @@ class AdvancedNLPProcessor:
             Example: {{"product_name": "tomatoes", "quantity": "1kg", "price": 50, "confidence": 0.9}}
             """
             
-            if self.model:
-                response = self.model.generate_content(prompt)
-                result = json.loads(response.text.strip())
-                return result
-            elif self.use_api:
-                return self._call_gemini_api(prompt, parse_json=True)
+            if self.use_api:
+                response = self._call_gemini_api(prompt)
+                if response:
+                    result = json.loads(response.strip())
+                    return result
+                else:
+                    return self._fallback_entity_extraction(text)
             else:
                 return self._fallback_entity_extraction(text)
         except Exception as e:
             logger.error(f"AI entity extraction failed: {e}")
             return self._fallback_entity_extraction(text)
     
-    def _call_gemini_api(self, prompt: str, parse_json: bool = False) -> Any:
-        """Call Gemini API directly"""
+    def _call_gemini_api_old(self, prompt: str, parse_json: bool = False) -> Any:
+        """Call Gemini API directly - OLD METHOD"""
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.api_key}"
             
             payload = {
                 "contents": [{
@@ -410,13 +474,16 @@ class ProductCategorizer:
             Example: ["fresh", "organic", "local", "seasonal"]
             """
             
-            if self.nlp.model:
-                response = self.nlp.model.generate_content(prompt)
-                tags = json.loads(response.text.strip())
-                return tags[:5]
-            elif self.nlp.use_api:
-                tags = self.nlp._call_gemini_api(prompt, parse_json=True)
-                return tags[:5] if tags else self._fallback_tags(product_name, category)
+            if self.nlp.use_api:
+                response = self.nlp._call_gemini_api(prompt)
+                if response:
+                    try:
+                        tags = json.loads(response.strip())
+                        return tags[:5]
+                    except json.JSONDecodeError:
+                        return self._fallback_tags(product_name, category)
+                else:
+                    return self._fallback_tags(product_name, category)
             else:
                 return self._fallback_tags(product_name, category)
         except Exception as e:
