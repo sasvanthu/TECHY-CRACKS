@@ -1,5 +1,7 @@
 # 🛒 Digital Catalog Creation & Maintenance Agent
 
+https://g.co/gemini/share/ec53fa8d4582
+
 **Advanced AI-powered voice-enabled system** designed to help **farmers**, **artisans**, and **kirana store owners** effortlessly create and manage digital product catalogs with **enhanced NLP**, **automatic categorization**, **market-based pricing**, and **multilingual support**.
 
 A React-based web application that empowers small sellers to manage digital product catalogs with AI assistance, supporting multilingual voice and text input, product management, and AI-generated marketing content.
