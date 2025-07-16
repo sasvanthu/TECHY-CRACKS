@@ -2,9 +2,17 @@
 
 **Advanced AI-powered voice-enabled system** designed to help **farmers**, **artisans**, and **kirana store owners** effortlessly create and manage digital product catalogs with **enhanced NLP**, **automatic categorization**, **market-based pricing**, and **multilingual support**.
 
+A React-based web application that empowers small sellers to manage digital product catalogs with AI assistance, supporting multilingual voice and text input, product management, and AI-generated marketing content.
+
 ---
 
 ## 🌟 Enhanced Features
+
+### 📱 Core Features
+- **Product Management**: Add, edit, delete, and export products stored in Firebase Firestore
+- **AI Integration**: Uses Gemini API for product description generation, slogan creation, category suggestions, and marketing campaigns
+- **Voice Interaction**: Web Speech API for voice input and output
+- **Responsive Design**: Built with Tailwind CSS for modern, responsive UI
 
 ### 🧠 Advanced AI Capabilities
 - **Smart NLP Processing**: Enhanced natural language understanding for voice commands
@@ -44,14 +52,18 @@
 ### Prerequisites
 - **Python 3.8+** 
 - **Node.js 14+**
+- **Firebase project** with Firestore and Authentication enabled
 - **Gemini AI API Key** (optional but recommended)
+- **Modern browser** supporting Web Speech API (Chrome recommended)
+
+### Setup Instructions
 
 ### 🔧 Installation Steps
 
 1. **Clone & Navigate**
    ```bash
-   git clone <repository-url>
-   cd digital-catalog-agent
+   git clone https://github.com/sasvanthu/TECHY-CRACKS.git
+   cd TECHY-CRACKS
    ```
 
 2. **Setup Backend**
@@ -84,6 +96,23 @@
    cd TECHY-CRACKS
    npm run dev
    ```
+
+### 🔧 Environment Configuration
+
+**Backend (.env):**
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+DATABASE_PATH=catalog_agent.db
+FLASK_ENV=development
+```
+
+**Frontend (.env):**
+```env
+REACT_APP_FIREBASE_CONFIG={"apiKey": "your-api-key", "authDomain": "your-auth-domain", "projectId": "your-project-id", "storageBucket": "your-storage-bucket", "messagingSenderId": "your-sender-id", "appId": "your-app-id"}
+REACT_APP_GEMINI_API_KEY=your-gemini-api-key
+REACT_APP_API_BASE_URL=http://localhost:5000/api
+```
+
 
 ---
 
@@ -122,10 +151,15 @@
 "List items under ₹50"
 ```
 
-### 📝 Text Input
-- Natural language text input with same intelligence as voice
-- Automatic entity extraction (product, quantity, price)
-- Smart categorization and tagging
+### 📝 How to Use
+1. **Add Products**: Type or speak product details (e.g., "Add 1kg tomatoes ₹30") to add to your catalog
+2. **Edit/Delete**: Use the "Edit" or "Delete" buttons next to each product
+3. **AI Features**:
+   - Generate Slogans: Create catchy slogans for products
+   - Suggest Categories: Get category suggestions
+   - Generate Campaign: Create marketing campaigns
+4. **Export Catalog**: Export your catalog as a text summary
+5. **Language Selection**: Switch between English, Hindi, and Tamil
 
 ### 🤖 AI Features in Action
 ```javascript
@@ -222,6 +256,12 @@ python test_agent.py
 3. **Test Voice Processing**: Use the `/api/process-voice` endpoint
 4. **Test Frontend**: Start React app and test voice commands
 
+### Live Demo
+```bash
+# Run comprehensive demo
+python demo_agent.py
+```
+
 ---
 
 ## 🌟 Key Benefits for Users
@@ -246,24 +286,76 @@ python test_agent.py
 
 ---
 
-## 📱 Next Steps & Roadmap
+## 📁 Project Structure
 
-### 🔮 Upcoming Features
-- **Image Recognition**: Auto-detect products from photos
-- **Voice-to-Voice**: Complete voice interaction without typing
-- **Advanced Analytics**: Sales predictions and inventory optimization
-- **Mobile App**: Dedicated mobile application
-- **Marketplace Integration**: Connect with online marketplaces
+```
+TECHY-CRACKS/
+├── backend/                 # Python Flask backend
+│   ├── app.py              # Main backend application
+│   ├── test_agent.py       # Comprehensive testing suite
+│   ├── requirements.txt    # Python dependencies
+│   └── .env.example       # Environment configuration
+├── TECHY-CRACKS/           # React frontend
+│   ├── src/
+│   │   ├── app.jsx         # Main React application
+│   │   ├── translations.jsx # Multilingual translations
+│   │   └── enhanced-features.jsx # Enhanced UI components
+│   ├── package.json        # Node.js dependencies
+│   └── .env.example       # Frontend configuration
+├── start_backend.py        # Backend startup script
+├── demo_agent.py          # Live demo script
+└── README.md              # This file
+```
 
-### 🎯 Performance Improvements
-- **Edge AI**: Local AI processing for faster responses
-- **Caching**: Smart caching for frequent operations
-- **Batch Processing**: Bulk product operations
-- **Real-time Sync**: Instant updates across devices
+---
+
+## 📝 Important Notes
+
+### Firebase Setup
+- Ensure Firestore rules allow read/write for authenticated users
+- Enable anonymous authentication in Firebase Console
+- Configure proper security rules for production
+
+### Gemini API
+- Valid API key with access to gemini-2.0-flash model required
+- Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+### Speech Recognition
+- Works best in Chrome browser
+- Requires HTTPS in production or localhost for development
+- Some browsers may not support Web Speech API
+
+### Security
+- Never commit .env files to version control
+- Add .env to .gitignore
+- Use environment variables for all sensitive data
+
+---
+
+## 📄 License
+
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+---
+
+## 🆘 Support
+
+- **Issues**: [GitHub Issues](https://github.com/sasvanthu/TECHY-CRACKS/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/sasvanthu/TECHY-CRACKS/discussions)
+- **Documentation**: Check `DEPLOYMENT_GUIDE.md` for detailed setup
 
 ---
 
 **🚀 Ready to revolutionize your product catalog management with AI!**
 
-Built with ❤️ for Indian small business owners
-
+Built with ❤️ for Indian farmers, artisans, and small business owners
